@@ -25,6 +25,11 @@ func parseKafkaVersion(kafkaVersion string) sarama.KafkaVersion {
 func OpenConnection(kafkaVersion string, clusterAddr []string, adminTimeout int, clientCertPath, clientKeyPath, serverCertPath string) sarama.ClusterAdmin {
 	config := sarama.NewConfig()
 
+	log.Infof("client cert path : %s, client key path: %s, server cert path: %s", clientCertPath, clientKeyPath, serverCertPath)
+	if clientCertPath == "" || clientKeyPath == "" || serverCertPath == "" {
+		log.Errorf("TLS Certificates not exist , client cert path : %s, client key path: %s, server cert path: %s", clientCertPath, clientKeyPath, serverCertPath)
+	}
+
 	tlsConfig, err := NewTLSConfig(clientCertPath, clientKeyPath, serverCertPath)
 	config.Net.TLS.Enable = true
 	config.Net.TLS.Config = tlsConfig
@@ -35,6 +40,7 @@ func OpenConnection(kafkaVersion string, clusterAddr []string, adminTimeout int,
 	if err != nil {
 		log.Errorf("Unable to connect to cluster: %v.\n%v", clusterAddr, err)
 	}
+
 	return clusterAdmin
 }
 
